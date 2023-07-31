@@ -32,14 +32,12 @@ def set_from_matrix(matrix):
     return vector_set
 
 def rotation_matrix(axis, radians):
-
-        axis = axis * np.sqrt( axis.item(0)**2 + axis.item(1)**2 + axis.item(2)**2)
-        
-        return np.matrix([
+    axis = axis * np.sqrt( axis.item(0)**2 + axis.item(1)**2 + axis.item(2)**2)   
+    return np.matrix([
         [ np.cos(radians) + ( axis.item(0)**2 * (1 - np.cos(radians))) ,  ( axis.item(0) * axis.item(1) * (1 - np.cos(radians) ) ) - ( axis.item(2) * np.sin(radians) ) , ( axis.item(0) * axis.item(2) * (1 - np.cos(radians) ) ) + axis.item(1) * np.sin(radians) ],
         [( axis.item(1) * axis.item(0) * (1 - np.cos(radians) ) ) + axis.item(2) * np.sin(radians), np.cos(radians) + ( axis.item(1)**2 * (1 - np.cos(radians))), ( axis.item(1) * axis.item(2) * (1 - np.cos(radians) ) ) - ( axis.item(0) * np.sin(radians) )],
         [( axis.item(2) * axis.item(0) * (1 - np.cos(radians) ) ) - ( axis.item(1) * np.sin(radians) ), ( axis.item(2) * axis.item(1) * (1 - np.cos(radians) ) ) + axis.item(0) * np.sin(radians), np.cos(radians) + ( axis.item(2)**2 * (1 - np.cos(radians))) ]
-        ])
+    ])
             
 def new_plot(fig_num):
     fig = plt.figure(fig_num)
