@@ -11,25 +11,6 @@ def new_vector(x, y, z):
         [z]
     ])
 
-inputs = [1, 1, 1]
-
-def new_vector_set(num_vectors):
-    vector_set = list()
-    
-    for i in range(num_vectors):
-        
-        coord = [1,2,3]
-        for n in coord:
-            n = int( input('Point: ' + str(i + 1) + ' Var: ' + str(n) + ' ') )
-            print(str(coord[0]))
-            print(str(coord[1]))
-            print(str(coord[2]))
-        
-        
-        vector_set.append(new_vector(int(coord[0]), int(coord[1]), int(coord[2])))
-       
-    return vector_set  
-
 def matrix_from_set(vector_set):
     vector_matrix = np.zeros(3, vector_set.Len())
     for i in range(0, vector_set.Len()-1):
@@ -37,8 +18,14 @@ def matrix_from_set(vector_set):
             vector_matrix.itemset((n, i), vector_set[i].item(n))
     return vector_matrix
     
-def rotate_set(vector_set, rotation_matrix):
-    return rotation_matrix * vector_set   
+def set_from_matrix(matrix):
+    vector_set = list()
+    for i in range(0, (matrix.shape[1] - 1)):   
+        vector_set.append(new_vector(matrix.item((0,i)), matrix.item((1,i)), matrix.item((2,i))))
+    return vector_set
+    
+def rotate_matrix(matrix, rotation_matrix):
+    return rotation_matrix * matrix   
     
 def rotation_matrix_x(radians):
     return np.matrix([
