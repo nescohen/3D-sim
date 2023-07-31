@@ -1,5 +1,4 @@
 import matplotlib.pyplot as plt
-import math
 import pandas as pd
 import numpy as np
 import scipy as sp
@@ -34,7 +33,7 @@ def set_from_matrix(matrix):
 
 def rotation_matrix(axis, radians):
 
-        axis = axis * (1 / math.sqrt( axis.item(0)**2 + axis.item(1)**2 + axis.item(2)**2))
+        axis = axis * np.sqrt( axis.item(0)**2 + axis.item(1)**2 + axis.item(2)**2)
         
         return np.matrix([
         [ np.cos(radians) + ( axis.item(0)**2 * (1 - np.cos(radians))) ,  ( axis.item(0) * axis.item(1) * (1 - np.cos(radians) ) ) - ( axis.item(2) * np.sin(radians) ) , ( axis.item(0) * axis.item(2) * (1 - np.cos(radians) ) ) + axis.item(1) * np.sin(radians) ],
@@ -89,11 +88,9 @@ render_lines = [new_line(axis) for i in range(3)]
 
 timestep = 0
 
-axis_of_rotation = new_vector(0,0,1)
-
 while True:
     timestep += 0.05
-    object_example = new_render_object(new_vector(0, 0, 0), rotation_matrix(axis_of_rotation, timestep), render_lines)
+    object_example = new_render_object(new_vector(0, 0, 0), rotation_matrix(new_vector(0,0,1), timestep), render_lines)
     draw_object_state(object_example)
     update_plot(p)
     time.sleep(0.05)
