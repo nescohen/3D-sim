@@ -4,6 +4,13 @@ import numpy as np
 import scipy as sp
 import time
 
+def new_render_object(pos, orientation, lines):
+    return {
+        "position": pos,
+        "orientation": orientation,
+        "lines": lines
+    }
+
 def new_vector(x, y, z):
     return np.matrix([
         [x],
@@ -60,32 +67,52 @@ def new_plot(fig_num):
     fig = plt.figure(fig_num)
     return fig
     
-# def new_axis(x_lim, y_lim, z_lim):
-#     ax = plt.axes(projection='3d')
-#     if x_lim.type() == list:
-#         ax.set(xlim = x_lim, ylim = y_lim, zlim = z_lim)
-#     if x_lim.type() == int:
-#         ax.set(xlim = [x_lim, -1*x_lim], ylim = [y_lim, -1*y_lim], zlim = [z_lim, -1*z_lim])
-#     else:
-#         ax.set(xlim = [1, -1], ylim = [1, -1], zlim = [1, -1])
-#     return ax
+def new_axis(x_lim, y_lim, z_lim):
+    ax = plt.axes(projection='3d')
+    ax.set(xlim = x_lim, ylim = y_lim, zlim = z_lim)
+    return ax
     
-def new_line(axis, start, end):
-    data = list()
-    for i in range(0,2):
-        data[i] = [start(i), end(i)]
-    line = axis.Plot3D(data[0], data[1], data[2], linewidth=2.0)
+def new_line(axis):
+    line, = axis.plot3D([], [], [], linewidth=2.0)
     return line
+
+def update_line(line, start, end):
+    data = list()
+    for i in range(3):
+        data.append([start.item(i), end.item(i)])
+    line.set_data_3d(data[0], data[1], data[2])
     
+def draw_object_state(render_object):
+
+    position_vector = render_object["position"]
+    rotation_matrix = render_object["orientation"]
+    lines = render_object["lines"]
+
+    basis_vectors = [new_vector(1,0,0), new_vector(0,1,0), new_vector(0,0,1)]
+    rotated_vectors = [(rotation_matrix * v) for v in basis_vectors]
+    translated_vectors = [(position_vector + r) for r in rotated_vectors]
+    for (l, v) in zip(lines, translated_vectors):
+        update_line(l, position_vector, v)
+
 def update_plot(fig):
     fig.canvas.draw()
     fig.canvas.flush_events()
 
-# Main   
-Plot = new_plot(1)
-# Axis = new_axis([-3,3], [-3,3], [-3,3])
-v_set = new_vector_set(2)
+# Main
+plt.style.use('_mpl-gallery')
+plt.ion()
+plt.figure(figsize=(10, 8), dpi=80)
+p = new_plot(1)
+axis = new_axis([-3,3], [-3,3], [-3,3])
+plt.show()
+
+render_lines = [new_line(axis) for i in range(3)]
+
+timestep = 0
 
 while True:
-    update_plot(Plot)
+    timestep += 0.05
+    object_example = new_render_object(new_vector(0, 0, 0), rotation_matrix('z', timestep), render_lines)
+    draw_object_state(object_example)
+    update_plot(p)
     time.sleep(0.05)
