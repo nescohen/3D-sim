@@ -31,9 +31,6 @@ def set_from_matrix(matrix):
     for i in range(0, (matrix.shape[1] - 1)):   
         vector_set.append(new_vector(matrix.item((0,i)), matrix.item((1,i)), matrix.item((2,i))))
     return vector_set
-    
-def rotate_matrix(matrix, rotation_matrix):
-    return rotation_matrix * matrix   
 
 def rotation_matrix(axis, radians):
 
