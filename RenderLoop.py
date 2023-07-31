@@ -1,4 +1,5 @@
 import matplotlib.pyplot as plt
+import math
 import pandas as pd
 import numpy as np
 import scipy as sp
@@ -33,36 +34,17 @@ def set_from_matrix(matrix):
     
 def rotate_matrix(matrix, rotation_matrix):
     return rotation_matrix * matrix   
-    
-def rotation_matrix_x(radians):
-    return np.matrix([
-        [1 , 0 , 0],
-        [0 , np.cos(radians), -1*np.sin(radians)], 
-        [0, np.sin(radians), np.cos(radians)]
-        ])
-        
-def rotation_matrix_y(radians):
-    return np.matrix([
-        [np.cos(radians), 0 , np.sin(radians)],
-        [0 , 1 , 0],
-        [-1*np.sin(radians), 0 , np.cos(radians)]
-        ])
-        
-def rotation_matrix_z(radians):
-    return np.matrix([
-        [np.cos(radians), -1*np.sin(radians), 0],
-        [np.sin(radians) , np.cos(radians), 0],
-        [0 , 0 , 1]
-        ])
-        
+
 def rotation_matrix(axis, radians):
-    if axis == 'x':
-        return rotation_matrix_x(radians)
-    if axis == 'y':
-        return rotation_matrix_y(radians)
-    if axis == 'z':
-        return rotation_matrix_z(radians)
+
+        axis = axis * (1 / math.sqrt( axis.item(0)**2 + axis.item(1)**2 + axis.item(2)**2))
         
+        return np.matrix([
+        [ np.cos(radians) + ( axis.item(0)**2 * (1 - np.cos(radians))) ,  ( axis.item(0) * axis.item(1) * (1 - np.cos(radians) ) ) - ( axis.item(2) * np.sin(radians) ) , ( axis.item(0) * axis.item(2) * (1 - np.cos(radians) ) ) + axis.item(1) * np.sin(radians) ],
+        [( axis.item(1) * axis.item(0) * (1 - np.cos(radians) ) ) + axis.item(2) * np.sin(radians), np.cos(radians) + ( axis.item(1)**2 * (1 - np.cos(radians))), ( axis.item(1) * axis.item(2) * (1 - np.cos(radians) ) ) - ( axis.item(0) * np.sin(radians) )],
+        [( axis.item(2) * axis.item(0) * (1 - np.cos(radians) ) ) - ( axis.item(1) * np.sin(radians) ), ( axis.item(2) * axis.item(1) * (1 - np.cos(radians) ) ) + axis.item(0) * np.sin(radians), np.cos(radians) + ( axis.item(2)**2 * (1 - np.cos(radians))) ]
+        ])
+            
 def new_plot(fig_num):
     fig = plt.figure(fig_num)
     return fig
@@ -110,9 +92,11 @@ render_lines = [new_line(axis) for i in range(3)]
 
 timestep = 0
 
+axis_of_rotation = new_vector(0,0,1)
+
 while True:
     timestep += 0.05
-    object_example = new_render_object(new_vector(0, 0, 0), rotation_matrix('z', timestep), render_lines)
+    object_example = new_render_object(new_vector(0, 0, 0), rotation_matrix(axis_of_rotation, timestep), render_lines)
     draw_object_state(object_example)
     update_plot(p)
     time.sleep(0.05)
