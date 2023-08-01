@@ -73,22 +73,3 @@ def draw_object_state(render_object):
 def update_plot(fig):
     fig.canvas.draw()
     fig.canvas.flush_events()
-
-# Main
-plt.style.use('_mpl-gallery')
-plt.ion()
-plt.figure(figsize=(10, 8), dpi=80)
-p = new_plot(1)
-axis = new_axis([-3,3], [-3,3], [-3,3])
-plt.show()
-
-render_lines = [new_line(axis) for i in range(3)]
-
-timestep = 0
-
-while True:
-    timestep += 0.05
-    object_example = new_render_object(new_vector(0, 0, 0), rotation_matrix(new_vector(0,0,1), timestep), render_lines)
-    draw_object_state(object_example)
-    update_plot(p)
-    time.sleep(0.05)
