@@ -18,7 +18,7 @@ render_lines = [render.new_line(axis) for i in range(3)]
 
 timestep = 0
 
-state = phy.new_state([phy.new_object(100, 1, phy.new_vector(0, 0, 0), np.identity(3), phy.new_vector(0, 0, 0), phy.new_vector(0, 0, 0), 0.47, phy.environment_model)])
+state = phy.new_state([phy.new_object(1, 1, phy.new_vector(0, 0, 0), np.identity(3), phy.new_vector(0, 0, 0), phy.new_vector(0, 0, 0), 0.47, phy.force_model)])
 
 while True:
     timestep += 0.01

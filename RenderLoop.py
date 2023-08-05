@@ -32,7 +32,10 @@ def set_from_matrix(matrix):
     return vector_set
 
 def rotation_matrix(axis, radians):
-    axis = axis * np.sqrt( axis.item(0)**2 + axis.item(1)**2 + axis.item(2)**2)   
+    magnitude = np.linalg.norm(axis)
+    if magnitude == 0:
+        return np.identity(3)
+    axis = axis / magnitude
     return np.matrix([
         [ np.cos(radians) + ( axis.item(0)**2 * (1 - np.cos(radians))) ,  ( axis.item(0) * axis.item(1) * (1 - np.cos(radians) ) ) - ( axis.item(2) * np.sin(radians) ) , ( axis.item(0) * axis.item(2) * (1 - np.cos(radians) ) ) + axis.item(1) * np.sin(radians) ],
         [( axis.item(1) * axis.item(0) * (1 - np.cos(radians) ) ) + axis.item(2) * np.sin(radians), np.cos(radians) + ( axis.item(1)**2 * (1 - np.cos(radians))), ( axis.item(1) * axis.item(2) * (1 - np.cos(radians) ) ) - ( axis.item(0) * np.sin(radians) )],

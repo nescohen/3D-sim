@@ -1,3 +1,5 @@
 "Vim Stuff
 *.swp
 *.swo
+
+__pycache__
