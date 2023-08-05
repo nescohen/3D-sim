@@ -8,6 +8,7 @@ import numpy.typing as npt
 import math
 import functools
 import RenderLoop as render
+import Control as control
 
 TIMESTEP_S: float = 0.01
 
@@ -104,16 +105,16 @@ def global_force_model(obj: dict) -> list[(npt.NDArray, npt.NDArray)]:
 def local_force_model(obj: dict) -> list[(npt.NDArray, npt.NDArray)]:
 	com = new_vector(0, 0, 0)
 
-	motor = new_vector(0, 0, 5)
+	controls = control.control(obj, TIMESTEP_S)
+	motor = new_vector(0, 0, 4) # newtons
 
 	arm1 = new_vector(1, 1, 0)
 	arm2 = new_vector(1, -1, 0)
 	arm3 = new_vector(-1, 1, 0)
 	arm4 = new_vector(-1, -1, 0)
 
-	return [
-		(1.1*motor, arm1),
-		(1.1*motor, arm2),
-		(0.9*motor, arm3),
-		(0.9*motor, arm4),
-	]
+	arms = [arm1, arm2, arm3, arm4]
+	forces = [(motor * c, a) for (c, a) in zip(controls, arms)]
+	print(forces)
+
+	return forces
