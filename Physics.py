@@ -22,7 +22,8 @@ def new_object(
 		lin_vel: npt.NDArray,
 		ang_vel: npt.NDArray,
 		drag_co: float,
-		force: typing.Callable[[dict], npt.NDArray],
+		local_forces,
+		global_forces,
 	) -> dict:
 	return {
 		"mass": mass,
@@ -32,7 +33,8 @@ def new_object(
 		"linear_velocity": lin_vel,
 		"angular_velocity": ang_vel,
 		"drag_coefficient": drag_co,
-		"force": force,
+		"local_forces": local_forces,
+		"global_forces": global_forces,
 	}
 
 def new_state(obs: list[dict]) -> dict:
@@ -46,16 +48,20 @@ def cross(a, b):
 
 def object_step(obj: dict) -> dict:
 	new_object = {**obj}
-	forces = obj["force"](obj)
+	local_forces = obj["local_forces"](obj)
+	global_forces = obj["global_forces"](obj)
 	net_force = new_vector(0, 0, 0)
 	net_torque = new_vector(0, 0, 0)
-	for (f, a) in forces:
-		net_force = net_force + f
+	for (f, a) in local_forces:
+		net_force = net_force + obj["orientation"].dot(f)
 		net_torque = net_torque + cross(f, a)
-	acceleration = obj["orientation"].dot(net_force) / obj["mass"]
+	for (f, a) in global_forces:
+		net_force = net_force + f
+		net_torque = net_torque + cross(np.linalg.inv(obj["orientation"]).dot(f), a)
+	acceleration = net_force / obj["mass"]
 	new_object["linear_velocity"] = obj["linear_velocity"] + acceleration * TIMESTEP_S
 	new_object["position"] = obj["position"] + new_object["linear_velocity"] * TIMESTEP_S
-	moi = 2.0 / 5.0 * obj["mass"] * obj["radius"]**2
+	moi = 2.0 / 5.0 * obj["mass"] * obj["radius"]**2 # Assuming all objects are spheres with uniform density
 	angular_acc = net_torque / moi
 	new_object["angular_velocity"] = obj["angular_velocity"] + angular_acc * TIMESTEP_S
 	new_object["orientation"] = obj["orientation"] * render.rotation_matrix(new_object["angular_velocity"], TIMESTEP_S * np.linalg.norm(new_object["angular_velocity"]))
@@ -76,9 +82,7 @@ def sim_run(start_state: dict, steps: int) -> dict:
 		curr_state = sim_step(curr_state)
 	return curr_state
 
-## Forces are returned in the object's local frame
-def force_model(obj: dict) -> list[(npt.NDArray, npt.NDArray)]:
-
+def global_force_model(obj: dict) -> list[(npt.NDArray, npt.NDArray)]:
 	com = new_vector(0, 0, 0)
 
 	gravity = new_vector(0, 0, -9.81*obj["mass"])
@@ -90,18 +94,26 @@ def force_model(obj: dict) -> list[(npt.NDArray, npt.NDArray)]:
 	v2 = obj["linear_velocity"] * speed
 	air_resistance = -0.5 * air_density * area * obj["drag_coefficient"] * v2
 
+	return [
+		(gravity, com),
+		(air_resistance, com),
+	]
  
-	c = new_vector(2, 0, 0)
 
-	arm = new_vector(1, 0, 0)
-	rev_arm = -1*arm
-	f = new_vector(0, 0.25, 0)
-	rev_f = -1*f
+## Forces are returned in the object's local frame
+def local_force_model(obj: dict) -> list[(npt.NDArray, npt.NDArray)]:
+	com = new_vector(0, 0, 0)
+
+	motor = new_vector(0, 0, 5)
+
+	arm1 = new_vector(1, 1, 0)
+	arm2 = new_vector(1, -1, 0)
+	arm3 = new_vector(-1, 1, 0)
+	arm4 = new_vector(-1, -1, 0)
 
 	return [
-		#(gravity, com),
-		#(air_resistance, com),
-		(c, com),
-		(f, arm),
-		(rev_f, rev_arm)
+		(1.1*motor, arm1),
+		(1.1*motor, arm2),
+		(0.9*motor, arm3),
+		(0.9*motor, arm4),
 	]
